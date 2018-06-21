@@ -1,0 +1,39 @@
+# Wallet
+wallet:
+    flash:
+        create_successfully: Wallet created successfully.
+
+# Address
+address:
+    flash:
+        create_successfully: Address created successfully.
+
+# Transaction
+transaction:
+    flash:
+        create_successfully: Transaction created successfully.
+
+# Faucet
+faucet:
+    flash:
+        fund_address_successfully: Address funded successfully.
+
+# CreateWalletForm
+create_wallet_form:
+    flash:
+        invalid_form: Invalid data. Please check input values.
+
+# CreateAddressForm
+create_address_form:
+    flash:
+        invalid_form: Invalid data. Please check input values.
+
+# CreateTransactionForm
+create_transaction_form:
+    flash:
+        invalid_form: Invalid data. Please check input values.
+
+# FundAddressForm
+fund_address_form:
+    flash:
+        invalid_form: Invalid data. Please check input values.

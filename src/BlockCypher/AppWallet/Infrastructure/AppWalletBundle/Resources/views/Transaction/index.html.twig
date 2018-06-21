@@ -1,0 +1,202 @@
+{% extends "BlockCypherAppCommonInfrastructureLayoutBundle::base.html.twig" %}
+
+{% block title %}Transactions - Wallet {{ wallet.id }}{% endblock title %}
+
+{% block page_header %}
+    <h1>
+        <i class="fa fa-qrcode"></i>
+        History
+    </h1>
+
+    <h2 class="tagline wrapit semi">Transactions in wallet {{ wallet.name }}
+        <small>(Wallet id: {{ wallet.id }})</small>
+    </h2>
+
+{% endblock page_header %}
+
+{% block content %}
+    <div class="container">
+
+        {% include "BlockCypherAppWalletInfrastructureAppWalletBundle:Modules:top_menu.html.twig" %}
+
+        <div class="section">
+            <div class="col-md-12">
+                {% include "BlockCypherAppWalletInfrastructureAppWalletBundle:Modules:balance.html.twig" %}
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            {% include "BlockCypherAppWalletInfrastructureAppWalletBundle:Modules:messages.html.twig" %}
+        </div>
+
+        <div class="col-md-12">
+            {% include "BlockCypherAppWalletInfrastructureAppWalletBundle:Modules:flash_messages.html.twig" %}
+        </div>
+
+        {% if all_transactions %}
+
+            <div class="col-md-12">
+
+                <h2>
+                    {{ num_all_txns|intcomma }} Transactions
+                    {% if num_unconfirmed_txns %}
+                        ({{ num_unconfirmed_txns|intcomma }} unconfirmed)
+                    {% endif %}
+                </h2>
+
+                {% if max_pages > 1 %}
+                    <div class="section pager">
+                        <div class="row">
+                            <div class="col-sm-4 text-left">
+                                {% if current_page > 1 %}
+                                    <a href="?page={{ current_page|add(-1)|intcomma }}" class="btn btn-default">
+                                        <i class="fa fa-angle-double-left"></i>
+                                        Previous Page
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-sm-4 text-center">
+                                Page of
+                            </div>
+
+                            <div class="col-sm-4 text-right">
+                                {% if current_page < max_pages %}
+                                    <a href="?page={{ current_page|add(1)|intcomma }}" class="btn btn-default">
+                                        Next Page
+                                        <i class="fa fa-angle-double-right"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th></th>
+                            <th>Time</th>
+                            <th>Description/Hash</th>
+                            {#<th>Hash</th>
+                            <th>Block</th>#}
+                            <th>Amount</th>
+                            <th>Units</th>
+                            <th>API</th>
+                            <th>EXP</th>
+                        </tr>
+                        {% for transaction in all_transactions %}
+                            <tr class="tx-row" id="{{ transaction.txHash }}">
+                                <td>
+                                    {% if transaction.confirmations >= 6 %}
+                                        <span class="confirmed">
+                                            <i class="fa fa-lock"></i>
+                                            <span id="num-confs"
+                                                  title="{{ transaction.confirmations|intcomma }} Confirmations">6+</span>
+                                        </span>
+                                    {% elseif transaction.confirmations > 0 and transaction.confirmations < 6 %}
+                                        <span class="pending">
+                                            <i class="fa fa-unlock"></i>
+                                            <span id="num-confs">{{ transaction.confirmations }}</span>/6
+                                        </span>
+                                    {% else %}
+                                        <span class="unconfirmed">
+                                            <i class="fa fa-unlock"></i>
+                                            <span id="num-confs">{{ transaction.confirmations }}</span>/6
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.received %}
+                                        <time class="timeago"
+                                              datetime="{{ transaction.received|date('Y-m-d\TH:i:s') }}Z">
+                                            {{ transaction.received|date('Y-m-d H:i') }} GMT
+                                        </time>
+                                    {% else %}
+                                        <time class="timeago"
+                                              datetime="{{ transaction.confirmed|date('Y-m-d\TH:i:s') }}Z">
+                                            {{ transaction.confirmed|date('Y-m-d H:i') }} GMT
+                                        </time>
+                                    {% endif %}
+                                </td>
+                                <td class="">
+                                    {{ transaction.description }}
+                                </td>
+                                {#<td class="truncate">
+                                    {% if transaction.txHash %}
+                                        <a href="{{ path('bc_app_explorer_transaction.overview', {'coinSymbol': coin_symbol, 'hash': transaction.txHash}) }}"
+                                           class="hidden-xs tx-list small">
+                                            {{ transaction.txHash }}
+                                        </a>
+                                        <a href="{{ path('bc_app_explorer_transaction.overview', {'coinSymbol': coin_symbol, 'hash': transaction.txHash}) }}"
+                                           class="visible-xs">
+                                            View Transaction
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.blockHeight %}
+                                        <a href="{{ path('bc_app_explorer_block.overview', {'coinSymbol': coin_symbol, 'hashOrHeight': transaction.blockHeight}) }}">{{ transaction.blockHeight|intcomma }}</a>
+                                    {% else %}
+                                        <span class="label label-danger">Pending</span>
+                                    {% endif %}
+                                </td>#}
+                                <td>
+                                    {% if transaction.total >= 0 %}+{% endif %}{{ transaction.total|satoshis_to_btc_rounding }} {{ coin_symbol|coin_symbol_to_currency_name }}
+                                </td>
+                                <td>
+                                    {% if transaction.total >= 0 %}+{% endif %}{{ transaction.total }}
+                                </td>
+                                <td><a target="_blank" href="{{ transaction.apiUrl }}"><i
+                                                class="fa fa-external-link"></i></a></td>
+                                <td><a target="_blank" href="{{ transaction.explorerUrl }}"><i
+                                                class="fa fa-external-link"></i></a></td>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+
+                {% if max_pages > 1 %}
+                    <div class="section pager">
+                        <div class="row">
+                            <div class="col-sm-4 text-left">
+                                {% if current_page > 1 %}
+                                    <a href="?page={{ current_page|add(-1)|intcomma }}" class="btn btn-default">
+                                        <i class="fa fa-angle-double-left"></i>
+                                        Previous Page
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-sm-4 text-center">
+                                Page of
+                            </div>
+
+                            <div class="col-sm-4 text-right">
+                                {% if current_page < max_pages %}
+                                    <a href="?page={{ current_page|add(1)|intcomma }}" class="btn btn-default">
+                                        Next Page
+                                        <i class="fa fa-angle-double-right"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% else %}
+            <p>No transactions detected.</p>
+        {% endif %}
+
+    </div>
+
+{% endblock content %}
+
+
+{% block extra_js %}
+{% endblock extra_js %}

@@ -1,0 +1,181 @@
+{% extends "BlockCypherAppCommonInfrastructureLayoutBundle::base.html.twig" %}
+
+{% block title %}Wallets{% endblock title %}
+
+{% block page_header %}
+    <h1>
+        <i class="fa fa-qrcode"></i>
+        Wallets
+    </h1>
+
+    <h2 class="tagline wrapit semi">
+        Your wallets
+    </h2>
+{% endblock page_header %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="section">
+            <div class="col-md-12">
+                <p class="text-center">
+                    <a href="{{ path('bc_app_wallet_wallet.index') }}"
+                       class="btn btn-lg btn-default">
+                        <i class="fa fa-bank"></i>
+                        Wallets
+                    </a>
+                    <a href="{{ path('bc_app_wallet_wallet.new') }}"
+                       class="btn btn-lg btn-default">
+                        <i class="fa fa-plus"></i>
+                        New Wallet
+                    </a>
+                    <a href="{{ path('bc_app_wallet_faucet.show') }}"
+                       class="btn btn-lg btn-default">
+                        <i class="fa fa-money"></i>
+                        Faucet
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            {% include "BlockCypherAppWalletInfrastructureAppWalletBundle:Modules:messages.html.twig" %}
+        </div>
+
+        <div class="col-md-12">
+            {% include "BlockCypherAppWalletInfrastructureAppWalletBundle:Modules:flash_messages.html.twig" %}
+        </div>
+
+        {% if wallets %}
+
+            <div class="col-md-12">
+
+                <h2>
+                    {{ num_all_wallets|intcomma }} Wallets
+                </h2>
+
+                {% if max_pages > 1 %}
+                    <div class="section pager">
+                        <div class="row">
+                            <div class="col-sm-4 text-left">
+                                {% if current_page > 1 %}
+                                    <a href="?page={{ current_page|add(-1)|intcomma }}" class="btn btn-default">
+                                        <i class="fa fa-angle-double-left"></i>
+                                        Previous Page
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-sm-4 text-center">
+                                Page of
+                            </div>
+
+                            <div class="col-sm-4 text-right">
+                                {% if current_page < max_pages %}
+                                    <a href="?page={{ current_page|add(1)|intcomma }}" class="btn btn-default">
+                                        Next Page
+                                        <i class="fa fa-angle-double-right"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <th>Name</th>
+                            <th>Final Balance</th>
+                            <th>Coin Symbol</th>
+                            <th>Creation Time</th>
+                            <th>Id</th>
+                            <th>Actions</th>
+                            <th>API</th>
+                        </tr>
+                        {% for wallet in wallets %}
+                            <tr class="tx-row" id="{{ wallet.id }}">
+                                <td class="">
+                                    {{ wallet.name }}
+                                </td>
+                                <td class="">
+                                    {# {{ wallet.balance|satoshis_to_btc_rounding|intcomma }}&nbsp;{{ wallet.type|coin_symbol_to_currency_name }} #}
+                                    {{ wallet.balance|satoshis_to_btc_full|intcomma(8) }}
+                                    &nbsp;{{ wallet.coinSymbol|coin_symbol_to_currency_name }} {# without rounding #}
+                                </td>
+                                <td class="">
+                                    {{ wallet.coinSymbol }}
+                                </td>
+                                <td>
+                                    <time class="timeago"
+                                          datetime="{{ wallet.creationTime|date('Y-m-d\TH:i:s') }}Z">
+                                        {{ wallet.creationTime|date('Y-m-d H:i') }} GMT
+                                    </time>
+                                </td>
+                                <td class="truncate">
+                                    <a href="{{ path('bc_app_wallet_transaction.index', {'walletId': wallet.id }) }}"
+                                       class="hidden-xs tx-list small">
+                                        {{ wallet.id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ path('bc_app_wallet_address.index', {'walletId': wallet.id }) }}"
+                                       class="hidden-xs tx-list small">[Addresses]</a>
+                                    <a href="{{ path('bc_app_wallet_transaction.index', {'walletId': wallet.id }) }}"
+                                       class="hidden-xs tx-list small">[History]</a>
+                                    <a href="{{ path('bc_app_wallet_transaction.new', {'walletId': wallet.id }) }}"
+                                       class="hidden-xs tx-list small">[Send Funds]</a>
+                                </td>
+                                <td><a target="_blank" href="{{ wallet.apiUrl }}"><i
+                                                class="fa fa-external-link"></i></a></td>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+
+                {% if max_pages > 1 %}
+                    <div class="section pager">
+                        <div class="row">
+                            <div class="col-sm-4 text-left">
+                                {% if current_page > 1 %}
+                                    <a href="?page={{ current_page|add(-1)|intcomma }}" class="btn btn-default">
+                                        <i class="fa fa-angle-double-left"></i>
+                                        Previous Page
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-sm-4 text-center">
+                                Page of
+                            </div>
+
+                            <div class="col-sm-4 text-right">
+                                {% if current_page < max_pages %}
+                                    <a href="?page={{ current_page|add(1)|intcomma }}" class="btn btn-default">
+                                        Next Page
+                                        <i class="fa fa-angle-double-right"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+
+        {% else %}
+            <p>No wallets detected.
+                <small>This account does not contain any wallet. Check that you have logged in with the right token.
+                </small>
+            </p>
+        {% endif %}
+
+    </div>
+
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock extra_js %}

@@ -1,0 +1,70 @@
+# you can read more about security in the related section of the documentation
+# http://symfony.com/doc/current/book/security.html
+security:
+    # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
+#    encoders:
+#        Symfony\Component\Security\Core\User\User: plaintext
+
+    encoders:
+        BlockCypher\AppCommon\Domain\User\User:
+            algorithm:            pbkdf2
+            hash_algorithm:       sha512
+            encode_as_base64:     true
+            iterations:           1000
+            key_length:           40
+
+    # http://symfony.com/doc/current/book/security.html#hierarchical-roles
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+#    providers:
+#        in_memory:
+#            memory:
+#                users:
+#                    user:  { password: userpass, roles: [ 'ROLE_USER' ] }
+#                    admin: { password: adminpass, roles: [ 'ROLE_ADMIN' ] }
+    providers:
+        blockcypher:
+            id: blockcypher_user_provider
+
+    # the main part of the security, where you can set up firewalls
+    # for specific sections of your app
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        # the login page has to be accessible for everybody
+        login_firewall:
+            pattern:  ^/login$
+            security: false
+        # the homepage page has to be accessible for everybody
+        homepage_firewall:
+            pattern:  ^/$
+            security: false
+        # secures part of the application
+        secured_area:
+            pattern:    ^/
+            stateless: false
+            blockcypher: true
+            #form_login:
+            #    check_path: login_check
+            #    login_path: login_route
+            logout:
+                path:   /logout
+                target: /
+                # PHP bug in version <= 5.4.4 https://github.com/symfony/symfony/issues/5868
+                #invalidate_session: true
+            #anonymous: ~
+            #http_basic:
+            #    realm: "Secured Demo Area"
+
+    # with these settings you can restrict or allow access for different parts
+    # of your application based on roles, ip, host or methods
+    # http://symfony.com/doc/current/cookbook/security/access_control.html
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }

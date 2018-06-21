@@ -1,0 +1,2 @@
+bc_layout_todo:
+    resource: "@BlockCypherAppCommonInfrastructureLayoutBundle/Resources/config/routing/todo.yml"
